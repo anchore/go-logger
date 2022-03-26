@@ -1,4 +1,4 @@
-package logrusadapter
+package logrus
 
 import (
 	"fmt"

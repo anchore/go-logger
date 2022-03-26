@@ -1,4 +1,4 @@
-package logrusadapter
+package logrus
 
 import (
 	iface "github.com/anchore/go-logger"
