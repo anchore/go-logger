@@ -1,4 +1,4 @@
-package logrus
+package logrusadapter
 
 import (
 	iface "github.com/anchore/go-logger"
@@ -10,6 +10,11 @@ var _ iface.Logger = (*nestedLogger)(nil)
 // nestedLogger is a wrapper for Logrus to enable nested logging configuration (loggers that always attach key-value pairs to all log entries)
 type nestedLogger struct {
 	entry *logrus.Entry
+}
+
+// Tracef takes a formatted template string and template arguments for the trace logging level.
+func (l *nestedLogger) Tracef(format string, args ...interface{}) {
+	l.entry.Tracef(format, args...)
 }
 
 // Debugf takes a formatted template string and template arguments for the debug logging level.
@@ -30,6 +35,11 @@ func (l *nestedLogger) Warnf(format string, args ...interface{}) {
 // Errorf takes a formatted template string and template arguments for the error logging level.
 func (l *nestedLogger) Errorf(format string, args ...interface{}) {
 	l.entry.Errorf(format, args...)
+}
+
+// Trace logs the given arguments at the trace logging level.
+func (l *nestedLogger) Trace(args ...interface{}) {
+	l.entry.Trace(args...)
 }
 
 // Debug logs the given arguments at the debug logging level.
@@ -59,5 +69,4 @@ func (l *nestedLogger) WithFields(fields ...interface{}) iface.MessageLogger {
 
 func (l *nestedLogger) Nested(fields ...interface{}) iface.Logger {
 	return &nestedLogger{entry: l.entry.WithFields(getFields(fields...))}
-
 }

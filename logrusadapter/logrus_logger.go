@@ -1,4 +1,4 @@
-package logrus
+package logrusadapter
 
 import (
 	"fmt"
@@ -19,11 +19,27 @@ const defaultLogFilePermissions fs.FileMode = 0644
 
 // Config contains all configurable values for the Logrus entry
 type Config struct {
-	EnableConsole bool
-	EnableFile    bool
-	Structured    bool
-	Level         logrus.Level
-	FileLocation  string
+	EnableConsole     bool
+	FileLocation      string
+	Structured        bool
+	Level             iface.Level
+	CaptureCallerInfo bool
+	NoLock            bool
+	ForceColors       bool
+	ForceFormatting   bool
+}
+
+func DefaultConfig() Config {
+	return Config{
+		EnableConsole:     true,
+		FileLocation:      "",
+		Structured:        false,
+		Level:             iface.InfoLevel,
+		CaptureCallerInfo: false,
+		NoLock:            false,
+		ForceColors:       true,
+		ForceFormatting:   true,
+	}
 }
 
 // logger contains all runtime values for using Logrus with the configured output target and input configuration values.
@@ -39,7 +55,7 @@ func New(cfg Config) (iface.Logger, error) {
 
 	var output io.Writer
 	switch {
-	case cfg.EnableConsole && cfg.EnableFile:
+	case cfg.EnableConsole && cfg.FileLocation != "":
 		logFile, err := os.OpenFile(cfg.FileLocation, os.O_WRONLY|os.O_CREATE, defaultLogFilePermissions)
 		if err != nil {
 			return nil, fmt.Errorf("unable to setup log file: %w", err)
@@ -47,7 +63,7 @@ func New(cfg Config) (iface.Logger, error) {
 		output = io.MultiWriter(os.Stderr, logFile)
 	case cfg.EnableConsole:
 		output = os.Stderr
-	case cfg.EnableFile:
+	case cfg.FileLocation != "":
 		logFile, err := os.OpenFile(cfg.FileLocation, os.O_WRONLY|os.O_CREATE, defaultLogFilePermissions)
 		if err != nil {
 			return nil, fmt.Errorf("unable to setup log file: %w", err)
@@ -57,8 +73,17 @@ func New(cfg Config) (iface.Logger, error) {
 		output = ioutil.Discard
 	}
 
+	level := getLogLevel(cfg.Level)
+	if level == logrus.PanicLevel {
+		return nil, fmt.Errorf("unknown log level %q", cfg.Level)
+	}
+
 	l.SetOutput(output)
-	l.SetLevel(cfg.Level)
+	l.SetLevel(level)
+	l.SetReportCaller(cfg.CaptureCallerInfo)
+	if cfg.NoLock {
+		l.SetNoLock()
+	}
 
 	if cfg.Structured {
 		l.SetFormatter(&logrus.JSONFormatter{
@@ -70,8 +95,8 @@ func New(cfg Config) (iface.Logger, error) {
 	} else {
 		l.SetFormatter(&prefixed.TextFormatter{
 			TimestampFormat: "2006-01-02 15:04:05",
-			ForceColors:     true,
-			ForceFormatting: true,
+			ForceColors:     cfg.ForceColors,
+			ForceFormatting: cfg.ForceFormatting,
 		})
 	}
 
@@ -80,6 +105,27 @@ func New(cfg Config) (iface.Logger, error) {
 		logger: l,
 		output: output,
 	}, nil
+}
+
+func getLogLevel(level iface.Level) logrus.Level {
+	switch level {
+	case iface.ErrorLevel:
+		return logrus.ErrorLevel
+	case iface.WarnLevel:
+		return logrus.WarnLevel
+	case iface.InfoLevel:
+		return logrus.InfoLevel
+	case iface.DebugLevel:
+		return logrus.DebugLevel
+	case iface.TraceLevel:
+		return logrus.TraceLevel
+	}
+	return logrus.PanicLevel
+}
+
+// Tracef takes a formatted template string and template arguments for the trace logging level.
+func (l *logger) Tracef(format string, args ...interface{}) {
+	l.logger.Tracef(format, args...)
 }
 
 // Debugf takes a formatted template string and template arguments for the debug logging level.
@@ -100,6 +146,11 @@ func (l *logger) Warnf(format string, args ...interface{}) {
 // Errorf takes a formatted template string and template arguments for the error logging level.
 func (l *logger) Errorf(format string, args ...interface{}) {
 	l.logger.Errorf(format, args...)
+}
+
+// Trace logs the given arguments at the trace logging level.
+func (l *logger) Trace(args ...interface{}) {
+	l.logger.Trace(args...)
 }
 
 // Debug logs the given arguments at the debug logging level.
@@ -129,7 +180,6 @@ func (l *logger) WithFields(fields ...interface{}) iface.MessageLogger {
 
 func (l *logger) Nested(fields ...interface{}) iface.Logger {
 	return &nestedLogger{entry: l.logger.WithFields(getFields(fields...))}
-
 }
 
 func (l *logger) SetOutput(writer io.Writer) {
