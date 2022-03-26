@@ -35,7 +35,7 @@ type FieldLogger interface {
 
 type MessageLogger interface {
 	ErrorLogger
-	WarningLogger
+	WarnLogger
 	InfoLogger
 	DebugLogger
 	TraceLogger
@@ -46,7 +46,7 @@ type ErrorLogger interface {
 	Error(args ...interface{})
 }
 
-type WarningLogger interface {
+type WarnLogger interface {
 	Warnf(format string, args ...interface{})
 	Warn(args ...interface{})
 }
