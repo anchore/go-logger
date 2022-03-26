@@ -15,30 +15,46 @@ import (
 var _ iface.Logger = (*logger)(nil)
 var _ iface.Controller = (*logger)(nil)
 
-const defaultLogFilePermissions fs.FileMode = 0644
+const (
+	defaultLogFilePermissions fs.FileMode = 0644
+	timestampFormat                       = "2006-01-02 15:04:05"
+)
 
 // Config contains all configurable values for the Logrus entry
 type Config struct {
 	EnableConsole     bool
 	FileLocation      string
-	Structured        bool
 	Level             iface.Level
+	Formatter         logrus.Formatter
 	CaptureCallerInfo bool
 	NoLock            bool
-	ForceColors       bool
-	ForceFormatting   bool
 }
 
 func DefaultConfig() Config {
 	return Config{
 		EnableConsole:     true,
 		FileLocation:      "",
-		Structured:        false,
 		Level:             iface.InfoLevel,
 		CaptureCallerInfo: false,
 		NoLock:            false,
-		ForceColors:       true,
-		ForceFormatting:   true,
+		Formatter:         DefaultTextFormatter(),
+	}
+}
+
+func DefaultTextFormatter() logrus.Formatter {
+	return &prefixed.TextFormatter{
+		TimestampFormat: timestampFormat,
+		ForceColors:     true,
+		ForceFormatting: true,
+	}
+}
+
+func DefaultJSONFormatter() logrus.Formatter {
+	return &logrus.JSONFormatter{
+		TimestampFormat:   timestampFormat,
+		DisableTimestamp:  false,
+		DisableHTMLEscape: false,
+		PrettyPrint:       false,
 	}
 }
 
@@ -81,23 +97,15 @@ func New(cfg Config) (iface.Logger, error) {
 	l.SetOutput(output)
 	l.SetLevel(level)
 	l.SetReportCaller(cfg.CaptureCallerInfo)
+
 	if cfg.NoLock {
 		l.SetNoLock()
 	}
 
-	if cfg.Structured {
-		l.SetFormatter(&logrus.JSONFormatter{
-			TimestampFormat:   "2006-01-02 15:04:05",
-			DisableTimestamp:  false,
-			DisableHTMLEscape: false,
-			PrettyPrint:       false,
-		})
+	if cfg.Formatter != nil {
+		l.SetFormatter(cfg.Formatter)
 	} else {
-		l.SetFormatter(&prefixed.TextFormatter{
-			TimestampFormat: "2006-01-02 15:04:05",
-			ForceColors:     cfg.ForceColors,
-			ForceFormatting: cfg.ForceFormatting,
-		})
+		l.SetFormatter(DefaultTextFormatter())
 	}
 
 	return &logger{
@@ -105,22 +113,6 @@ func New(cfg Config) (iface.Logger, error) {
 		logger: l,
 		output: output,
 	}, nil
-}
-
-func getLogLevel(level iface.Level) logrus.Level {
-	switch level {
-	case iface.ErrorLevel:
-		return logrus.ErrorLevel
-	case iface.WarnLevel:
-		return logrus.WarnLevel
-	case iface.InfoLevel:
-		return logrus.InfoLevel
-	case iface.DebugLevel:
-		return logrus.DebugLevel
-	case iface.TraceLevel:
-		return logrus.TraceLevel
-	}
-	return logrus.PanicLevel
 }
 
 // Tracef takes a formatted template string and template arguments for the trace logging level.
@@ -199,4 +191,20 @@ func getFields(fields ...interface{}) logrus.Fields {
 		}
 	}
 	return f
+}
+
+func getLogLevel(level iface.Level) logrus.Level {
+	switch level {
+	case iface.ErrorLevel:
+		return logrus.ErrorLevel
+	case iface.WarnLevel:
+		return logrus.WarnLevel
+	case iface.InfoLevel:
+		return logrus.InfoLevel
+	case iface.DebugLevel:
+		return logrus.DebugLevel
+	case iface.TraceLevel:
+		return logrus.TraceLevel
+	}
+	return logrus.PanicLevel
 }
