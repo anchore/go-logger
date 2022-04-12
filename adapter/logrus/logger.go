@@ -65,10 +65,8 @@ type logger struct {
 	output io.Writer
 }
 
-// New creates a new entry with the given configuration
-func New(cfg Config) (iface.Logger, error) {
-	l := logrus.New()
-
+// Use adapts the given logger based on the provided configuration
+func Use(l *logrus.Logger, cfg Config) (iface.Logger, error) {
 	var output io.Writer
 	switch {
 	case cfg.EnableConsole && cfg.FileLocation != "":
@@ -113,6 +111,11 @@ func New(cfg Config) (iface.Logger, error) {
 		logger: l,
 		output: output,
 	}, nil
+}
+
+// New creates a new logger with the given configuration
+func New(cfg Config) (iface.Logger, error) {
+	return Use(logrus.New(), cfg)
 }
 
 // Tracef takes a formatted template string and template arguments for the trace logging level.
