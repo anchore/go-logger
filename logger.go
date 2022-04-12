@@ -34,34 +34,39 @@ type FieldLogger interface {
 }
 
 type MessageLogger interface {
-	ErrorLogger
-	WarnLogger
-	InfoLogger
-	DebugLogger
-	TraceLogger
+	ErrorMessageLogger
+	WarnMessageLogger
+	InfoMessageLogger
+	DebugMessageLogger
+	TraceMessageLogger
 }
 
-type ErrorLogger interface {
+//type MessageLogger interface {
+//	Logf(level Level, format string, args ...interface{})
+//	Log(level Level, args ...interface{})
+//}
+
+type ErrorMessageLogger interface {
 	Errorf(format string, args ...interface{})
 	Error(args ...interface{})
 }
 
-type WarnLogger interface {
+type WarnMessageLogger interface {
 	Warnf(format string, args ...interface{})
 	Warn(args ...interface{})
 }
 
-type InfoLogger interface {
+type InfoMessageLogger interface {
 	Infof(format string, args ...interface{})
 	Info(args ...interface{})
 }
 
-type DebugLogger interface {
+type DebugMessageLogger interface {
 	Debugf(format string, args ...interface{})
 	Debug(args ...interface{})
 }
 
-type TraceLogger interface {
+type TraceMessageLogger interface {
 	Tracef(format string, args ...interface{})
 	Trace(args ...interface{})
 }
