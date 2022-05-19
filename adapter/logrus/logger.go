@@ -87,9 +87,11 @@ func Use(l *logrus.Logger, cfg Config) (iface.Logger, error) {
 		output = ioutil.Discard
 	}
 
-	level := getLogLevel(cfg.Level)
-	if level == logrus.PanicLevel {
-		return nil, fmt.Errorf("unknown log level %q", cfg.Level)
+	var level logrus.Level
+	if cfg.Level == iface.DisabledLevel {
+		level = logrus.PanicLevel
+	} else {
+		level = getLogLevel(cfg.Level)
 	}
 
 	l.SetOutput(output)

@@ -2,11 +2,14 @@ package logger
 
 import (
 	"io"
+    "strings"
+	"fmt"
 )
 
 type Level string
 
 const (
+    DisabledLevel Level = ""
 	ErrorLevel Level = "error"
 	WarnLevel  Level = "warn"
 	InfoLevel  Level = "info"
@@ -69,4 +72,49 @@ type DebugMessageLogger interface {
 type TraceMessageLogger interface {
 	Tracef(format string, args ...interface{})
 	Trace(args ...interface{})
+}
+
+func LevelFromString(l string) (Level, error) {
+	switch strings.ToLower(l) {
+	case "":
+		return DisabledLevel, nil
+	case "error", "err", "e":
+		return ErrorLevel, nil
+	case "warn", "warning", "w":
+		return WarnLevel, nil
+	case "info", "information", "informational", "i":
+		return InfoLevel, nil
+	case "debug", "debugging", "d":
+		return DebugLevel, nil
+	case "trace", "t":
+		return TraceLevel, nil
+	}
+
+	return Level(l), fmt.Errorf("not a valid log level: %q", l)
+}
+
+func LevelFromVerbosity(v int, levels ...Level) Level {
+    if len(levels) == 0 {
+        return DisabledLevel
+    }
+    if v > len(levels) {
+        return levels[v-1]
+    }
+    if v <= 0 {
+        return levels[0]
+    }
+    return levels[v]
+}
+
+func IsLevel(l Level, levels ...Level) bool {
+    for _, level := range levels {
+        if l == level {
+            return true
+        }
+    }
+    return false
+}
+
+func IsVerbose(level Level) bool {
+    return IsLevel(level, InfoLevel, DebugLevel)
 }
