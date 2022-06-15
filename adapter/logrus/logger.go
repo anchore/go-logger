@@ -190,8 +190,19 @@ func (l *logger) GetOutput() io.Writer {
 
 func getFields(fields ...interface{}) logrus.Fields {
 	f := make(logrus.Fields)
+	offset := 0
 	for i, val := range fields {
-		if i%2 != 0 {
+		// there can be a fields map anywhere within the parameters
+		if fieldsMap, ok := val.(iface.Fields); ok {
+			for k, v := range fieldsMap {
+				f[k] = v
+			}
+			offset++
+			continue
+		}
+
+		// virtually skip any field maps found when figuring if this is a key or a value
+		if (i-offset)%2 != 0 {
 			f[fmt.Sprintf("%s", fields[i-1])] = val
 		}
 	}
