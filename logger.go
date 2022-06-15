@@ -1,20 +1,20 @@
 package logger
 
 import (
-	"io"
-    "strings"
 	"fmt"
+	"io"
+	"strings"
 )
 
 type Level string
 
 const (
-    DisabledLevel Level = ""
-	ErrorLevel Level = "error"
-	WarnLevel  Level = "warn"
-	InfoLevel  Level = "info"
-	DebugLevel Level = "debug"
-	TraceLevel Level = "trace"
+	DisabledLevel Level = ""
+	ErrorLevel    Level = "error"
+	WarnLevel     Level = "warn"
+	InfoLevel     Level = "info"
+	DebugLevel    Level = "debug"
+	TraceLevel    Level = "trace"
 )
 
 type Logger interface {
@@ -35,6 +35,8 @@ type NestedLogger interface {
 type FieldLogger interface {
 	WithFields(fields ...interface{}) MessageLogger
 }
+
+type Fields map[string]interface{}
 
 type MessageLogger interface {
 	ErrorMessageLogger
@@ -94,27 +96,27 @@ func LevelFromString(l string) (Level, error) {
 }
 
 func LevelFromVerbosity(v int, levels ...Level) Level {
-    if len(levels) == 0 {
-        return DisabledLevel
-    }
-    if v > len(levels) {
-        return levels[v-1]
-    }
-    if v <= 0 {
-        return levels[0]
-    }
-    return levels[v]
+	if len(levels) == 0 {
+		return DisabledLevel
+	}
+	if v > len(levels) {
+		return levels[v-1]
+	}
+	if v <= 0 {
+		return levels[0]
+	}
+	return levels[v]
 }
 
 func IsLevel(l Level, levels ...Level) bool {
-    for _, level := range levels {
-        if l == level {
-            return true
-        }
-    }
-    return false
+	for _, level := range levels {
+		if l == level {
+			return true
+		}
+	}
+	return false
 }
 
 func IsVerbose(level Level) bool {
-    return IsLevel(level, InfoLevel, DebugLevel)
+	return IsLevel(level, InfoLevel, DebugLevel)
 }
