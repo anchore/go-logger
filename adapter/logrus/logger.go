@@ -9,7 +9,6 @@ import (
 
 	iface "github.com/anchore/go-logger"
 	"github.com/sirupsen/logrus"
-	prefixed "github.com/x-cray/logrus-prefixed-formatter"
 )
 
 var _ iface.Logger = (*logger)(nil)
@@ -42,7 +41,7 @@ func DefaultConfig() Config {
 }
 
 func DefaultTextFormatter() logrus.Formatter {
-	return &prefixed.TextFormatter{
+	return &TextFormatter{
 		TimestampFormat: timestampFormat,
 		ForceColors:     true,
 		ForceFormatting: true,
