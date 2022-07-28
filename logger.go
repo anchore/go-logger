@@ -99,8 +99,8 @@ func LevelFromVerbosity(v int, levels ...Level) Level {
 	if len(levels) == 0 {
 		return DisabledLevel
 	}
-	if v > len(levels) {
-		return levels[v-1]
+	if v >= len(levels) {
+		return levels[len(levels)-1]
 	}
 	if v <= 0 {
 		return levels[0]
