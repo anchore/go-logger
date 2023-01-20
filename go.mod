@@ -3,7 +3,9 @@ module github.com/anchore/go-logger
 go 1.17
 
 require (
+	github.com/google/uuid v1.3.0
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d
+	github.com/scylladb/go-set v1.0.2
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.5.1
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211

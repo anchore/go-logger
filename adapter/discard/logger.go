@@ -1,8 +1,9 @@
 package discard
 
 import (
-	iface "github.com/anchore/go-logger"
 	"io"
+
+	iface "github.com/anchore/go-logger"
 )
 
 var _ iface.Logger = (*logger)(nil)

@@ -46,7 +46,7 @@ type MessageLogger interface {
 	TraceMessageLogger
 }
 
-//type MessageLogger interface {
+// type MessageLogger interface {
 //	Logf(level Level, format string, args ...interface{})
 //	Log(level Level, args ...interface{})
 //}
