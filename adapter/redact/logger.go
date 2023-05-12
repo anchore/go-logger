@@ -2,12 +2,14 @@ package redact
 
 import (
 	"fmt"
+	"io"
 	"strings"
 
 	iface "github.com/anchore/go-logger"
 )
 
 var _ iface.Logger = (*redactingLogger)(nil)
+var _ iface.Controller = (*redactingLogger)(nil)
 
 type redactingLogger struct {
 	log        iface.MessageLogger
@@ -24,6 +26,19 @@ func New(log iface.MessageLogger, reader StoreReader) iface.Logger {
 		log:        log,
 		redactions: reader,
 	}
+}
+
+func (r *redactingLogger) SetOutput(writer io.Writer) {
+	if c, ok := r.log.(iface.Controller); ok {
+		c.SetOutput(writer)
+	}
+}
+
+func (r *redactingLogger) GetOutput() io.Writer {
+	if c, ok := r.log.(iface.Controller); ok {
+		return c.GetOutput()
+	}
+	return nil
 }
 
 func (r *redactingLogger) Errorf(format string, args ...interface{}) {
