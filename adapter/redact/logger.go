@@ -3,7 +3,6 @@ package redact
 import (
 	"fmt"
 	"io"
-	"strings"
 
 	iface "github.com/anchore/go-logger"
 )
@@ -12,19 +11,19 @@ var _ iface.Logger = (*redactingLogger)(nil)
 var _ iface.Controller = (*redactingLogger)(nil)
 
 type redactingLogger struct {
-	log        iface.MessageLogger
-	redactions StoreReader
+	log      iface.MessageLogger
+	redactor Redactor
 }
 
-func New(log iface.MessageLogger, reader StoreReader) iface.Logger {
+func New(log iface.MessageLogger, redactor Redactor) iface.Logger {
 	if r, ok := log.(*redactingLogger); ok {
 		// this is already a redacting logger, so just return it, but attach it to all discovered existing stores
-		r.redactions = newStoreReaderCollection(r.redactions, reader)
+		r.redactor = newRedactorCollection(r.redactor, redactor)
 		return r
 	}
 	return &redactingLogger{
-		log:        log,
-		redactions: reader,
+		log:      log,
+		redactor: redactor,
 	}
 }
 
@@ -83,14 +82,14 @@ func (r *redactingLogger) Trace(args ...interface{}) {
 
 func (r *redactingLogger) WithFields(fields ...interface{}) iface.MessageLogger {
 	if l, ok := r.log.(iface.FieldLogger); ok {
-		return New(l.WithFields(r.redactFields(fields)...), r.redactions)
+		return New(l.WithFields(r.redactFields(fields)...), r.redactor)
 	}
 	return r
 }
 
 func (r *redactingLogger) Nested(fields ...interface{}) iface.Logger {
 	if l, ok := r.log.(iface.NestedLogger); ok {
-		return New(l.Nested(r.redactFields(fields)...), r.redactions)
+		return New(l.Nested(r.redactFields(fields)...), r.redactor)
 	}
 	return r
 }
@@ -127,10 +126,6 @@ func (r *redactingLogger) redactFields(fields []interface{}) []interface{} {
 	return fields
 }
 
-func (r *redactingLogger) redactString(str string) string {
-	for _, s := range r.redactions.Values() {
-		// note: we don't use the length of the redaction string to determine the replacement string, as even the length could be considered sensitive
-		str = strings.ReplaceAll(str, s, strings.Repeat("*", 7))
-	}
-	return str
+func (r *redactingLogger) redactString(s string) string {
+	return r.redactor.RedactString(s)
 }
