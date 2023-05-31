@@ -17,6 +17,16 @@ const (
 	TraceLevel    Level = "trace"
 )
 
+func Levels() []Level {
+	return []Level{
+		ErrorLevel,
+		WarnLevel,
+		InfoLevel,
+		DebugLevel,
+		TraceLevel,
+	}
+}
+
 type Logger interface {
 	MessageLogger
 	FieldLogger
