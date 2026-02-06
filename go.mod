@@ -2,6 +2,8 @@ module github.com/anchore/go-logger
 
 go 1.23.0
 
+toolchain go1.23.8
+
 require (
 	github.com/google/uuid v1.6.0
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d

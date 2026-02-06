@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 env:
-  GO_VERSION: "1.18.x"
+  GO_VERSION: "1.23.x"
   GO_CACHE_KEY: efa04b89c1b1
 
 jobs:
