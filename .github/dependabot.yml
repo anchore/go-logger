@@ -1,22 +1,43 @@
 version: 2
 
 updates:
+
   - package-ecosystem: gomod
     directory: "/"
-    schedule:
-      interval: "daily"
     cooldown:
       default-days: 7
+    schedule:
+      interval: "weekly"
+      day: "friday"
     open-pull-requests-limit: 10
     labels:
       - "dependencies"
+    groups:
+      go-minor-patch:
+        applies-to: version-updates
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
   - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "daily"
+    directories:
+      - "/"
+      - "/.github/actions/*"
     cooldown:
       default-days: 7
+    schedule:
+      interval: "weekly"
+      day: "friday"
     open-pull-requests-limit: 10
     labels:
       - "dependencies"
+    groups:
+      actions-minor-patch:
+        applies-to: version-updates
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"

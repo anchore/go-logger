@@ -1,0 +1,45 @@
+name: "Release"
+
+permissions:
+  contents: read
+  checks: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: tag the latest commit on main with the given version (prefixed with v)
+        required: true
+
+jobs:
+
+  version-available:
+    uses: anchore/workflows/.github/workflows/check-version-available.yaml@4f25313f96311410cad4173f74617654a3e46d48 # v0.3.0
+    with:
+      version: ${{ github.event.inputs.version }}
+
+  check-gate:
+    uses: anchore/workflows/.github/workflows/check-gate.yaml@4f25313f96311410cad4173f74617654a3e46d48 # v0.3.0
+    with:
+      checks: '["Static analysis", "Unit tests"]'
+
+  release:
+    needs: [check-gate, version-available]
+    environment: release
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      # setup checkout, go, go-make, binny, and cache go modules
+      - uses: anchore/go-make/.github/actions/setup@1747ccaf5ab9a24fc6beaff2c4665007fe656462 # dev branch!
+
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+          RELEASE_VERSION: ${{ github.event.inputs.version }}
+        run: make ci-release
