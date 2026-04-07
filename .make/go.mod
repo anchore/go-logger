@@ -2,7 +2,7 @@ module builder
 
 go 1.25.0
 
-require github.com/anchore/go-make v0.0.0-20260407164102-1747ccaf5ab9
+require github.com/anchore/go-make v0.1.0
 
 require (
 	github.com/bmatcuk/doublestar/v4 v4.10.0 // indirect
