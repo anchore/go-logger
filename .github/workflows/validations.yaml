@@ -9,82 +9,26 @@ on:
 permissions:
   contents: read
 
-env:
-  GO_VERSION: "1.24.x"
-  GO_CACHE_KEY: efa04b89c1b1
-
 jobs:
 
   Static-Analysis:
+    # Note: changing this job name requires making the same update in the .github/workflows/release.yaml pipeline
     name: "Static analysis"
     runs-on: ubuntu-24.04
-    permissions:
-      contents: read
     steps:
-      - uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # v6.3.0
-        with:
-          go-version: ${{ env.GO_VERSION }}
-
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
-
-      - name: Restore tool cache
-        id: tool-cache
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
-        with:
-          path: ${{ github.workspace }}/.tmp
-          key: ${{ runner.os }}-tool-${{ hashFiles('Makefile') }}
-
-      - name: Restore go cache
-        id: go-cache
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
-        with:
-          path: ~/go/pkg/mod
-          key:  ${{ runner.os }}-go-${{ env.GO_VERSION }}-${{ env.GO_CACHE_KEY }}-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-             ${{ runner.os }}-go-${{ env.GO_VERSION }}-${{ env.GO_CACHE_KEY }}-
-
-      - name: (cache-miss) Bootstrap all project dependencies
-        if: steps.tool-cache.outputs.cache-hit != 'true' || steps.go-cache.outputs.cache-hit != 'true'
-        run: make bootstrap
+      # setup checkout, go, go-make, binny, and cache go modules
+      - uses: anchore/go-make/.github/actions/setup@1747ccaf5ab9a24fc6beaff2c4665007fe656462 # dev branch!
 
       - name: Run static analysis
         run: make static-analysis
 
   Unit-Test:
+    # Note: changing this job name requires making the same update in the .github/workflows/release.yaml pipeline
     name: "Unit tests"
     runs-on: ubuntu-24.04
-    permissions:
-      contents: read
     steps:
-      - uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # v6.3.0
-        with:
-          go-version: ${{ env.GO_VERSION }}
-
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
-
-      - name: Restore tool cache
-        id: tool-cache
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
-        with:
-          path: ${{ github.workspace }}/.tmp
-          key: ${{ runner.os }}-tool-${{ hashFiles('Makefile') }}
-
-      - name: Restore go cache
-        id: go-cache
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
-        with:
-          path: ~/go/pkg/mod
-          key:  ${{ runner.os }}-go-${{ env.GO_VERSION }}-${{ env.GO_CACHE_KEY }}-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-             ${{ runner.os }}-go-${{ env.GO_VERSION }}-${{ env.GO_CACHE_KEY }}-
-
-      - name: (cache-miss) Bootstrap all project dependencies
-        if: steps.tool-cache.outputs.cache-hit != 'true' || steps.go-cache.outputs.cache-hit != 'true'
-        run: make bootstrap
+      # setup checkout, go, go-make, binny, and cache go modules
+      - uses: anchore/go-make/.github/actions/setup@1747ccaf5ab9a24fc6beaff2c4665007fe656462 # dev branch!
 
       - name: Run unit tests
         run: make unit
