@@ -34,6 +34,11 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6.0.2
+        with:
+          fetch-depth: 0  # we need the full history to reason about changelogs and tags
+          persist-credentials: true
+
       # setup checkout, go, go-make, binny, and cache go modules
       - uses: anchore/go-make/.github/actions/setup@1747ccaf5ab9a24fc6beaff2c4665007fe656462 # dev branch!
 
