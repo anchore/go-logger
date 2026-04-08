@@ -1,23 +1,28 @@
-# IDE
-.server/
-.vscode/
-.history/
-.idea/
-
 # local development
 go.work
 go.work.sum
-/specs
 mise.toml
+/specs/
 
-# releases
-CHANGELOG.md
-VERSION
+# IDEs
+.idea/
+.vscode/
+.history/
+
+# tools and aux data
+.tool
+.tmp
+.task
+
+# release info
+/CHANGELOG.md
+/VERSION
+
+# archives and fixtures
 /test/results
 /dist
 /snapshot
-
-# assets
+.server/
 *.fingerprint
 *.tar
 *.jar
@@ -29,7 +34,6 @@ VERSION
 *.log
 .images
 .tmp/
-.tool/
 coverage.txt
 bin/
 
@@ -50,4 +54,3 @@ bin/
 .DS_STORE
 
 *.profile
-
