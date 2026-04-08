@@ -1,3 +1,14 @@
+# Dependabot configuration
+#
+# Grouping behavior (see inline comments for details):
+#   - Minor + patch updates: grouped into a single PR per ecosystem
+#   - Major version bumps: individual PR per dependency
+#   - Security updates: individual PR per dependency
+#
+# Note: "patch" refers to semver version bumps (1.2.3 -> 1.2.4), not security fixes.
+# Security updates are identified separately via GitHub's Advisory Database and
+# can be any version bump (patch, minor, or major) that fixes a known CVE.
+
 version: 2
 
 updates:
@@ -16,10 +27,10 @@ updates:
       - "dependencies"
     groups:
       go-minor-patch:
-        applies-to: version-updates
+        applies-to: version-updates  # security updates get individual PRs
         patterns:
           - "*"
-        update-types:
+        update-types:  # major omitted, gets individual PRs
           - "minor"
           - "patch"
 
@@ -37,9 +48,9 @@ updates:
       - "dependencies"
     groups:
       actions-minor-patch:
-        applies-to: version-updates
+        applies-to: version-updates  # security updates get individual PRs
         patterns:
           - "*"
-        update-types:
+        update-types:  # major omitted, gets individual PRs
           - "minor"
           - "patch"
