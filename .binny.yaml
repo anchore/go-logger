@@ -12,7 +12,7 @@ tools:
   # used at release to generate the changelog
   - name: chronicle
     version:
-      want: v0.8.3
+      want: v0.8.0
     method: github-release
     with:
       repo: anchore/chronicle
