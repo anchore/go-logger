@@ -3,6 +3,7 @@ package redact
 import (
 	"bytes"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -44,48 +45,48 @@ func Test_RedactingLogger(t *testing.T) {
 				fieldObj[v] = v
 			}
 
-			format := ""
-			var fields []interface{}
+			var format strings.Builder
+			var fields []any
 			for _, v := range test.redact {
 				fields = append(fields, v)
-				format += "%s"
+				format.WriteString("%s")
 			}
 
 			fields = append(fields, 3)
-			format += "%d"
+			format.WriteString("%d")
 
 			fields = append(fields, int32(3))
-			format += "%d"
+			format.WriteString("%d")
 
 			fields = append(fields, 3.2)
-			format += "%f"
+			format.WriteString("%f")
 
 			fields = append(fields, float32(4.3))
-			format += "%f"
+			format.WriteString("%f")
 
 			fields = append(fields, fieldObj)
-			format += "%+v"
+			format.WriteString("%+v")
 
-			var interlacedFields []interface{}
+			var interlacedFields []any
 			for i, f := range fields {
 				interlacedFields = append(interlacedFields, fmt.Sprintf("%d", i), f)
 			}
 
 			nestedFieldLogger := redactor.Nested(interlacedFields...).WithFields(interlacedFields...)
 
-			nestedFieldLogger.Tracef(format, fields...)
+			nestedFieldLogger.Tracef(format.String(), fields...)
 			nestedFieldLogger.Trace(fields...)
 
-			nestedFieldLogger.Debugf(format, fields...)
+			nestedFieldLogger.Debugf(format.String(), fields...)
 			nestedFieldLogger.Debug(fields...)
 
-			nestedFieldLogger.Infof(format, fields...)
+			nestedFieldLogger.Infof(format.String(), fields...)
 			nestedFieldLogger.Info(fields...)
 
-			nestedFieldLogger.Warnf(format, fields...)
+			nestedFieldLogger.Warnf(format.String(), fields...)
 			nestedFieldLogger.Warn(fields...)
 
-			nestedFieldLogger.Errorf(format, fields...)
+			nestedFieldLogger.Errorf(format.String(), fields...)
 			nestedFieldLogger.Error(fields...)
 
 			result := buff.String()
