@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/anchore/go-logger"
-	"github.com/anchore/go-logger/adapter/logrus"
+	slogadapter "github.com/anchore/go-logger/adapter/slog"
 )
 
 func Test_RedactingLogger(t *testing.T) {
@@ -30,13 +30,13 @@ func Test_RedactingLogger(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			out, err := logrus.New(logrus.Config{
-				Level: logger.TraceLevel,
-			})
-			require.NoError(t, err)
-
 			buff := bytes.Buffer{}
-			out.(logger.Controller).SetOutput(&buff)
+			out := slogadapter.New(slogadapter.Config{
+				Level:  logger.TraceLevel,
+				Output: &buff,
+				Format: slogadapter.FormatText,
+			})
+			require.Implements(t, (*logger.Controller)(nil), out)
 
 			redactor := New(out, NewStore(test.redact...))
 
