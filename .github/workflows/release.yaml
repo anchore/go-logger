@@ -15,15 +15,16 @@ on:
         required: true
 
 jobs:
-
   version-available:
     uses: anchore/workflows/.github/workflows/check-version-available.yaml@4f25313f96311410cad4173f74617654a3e46d48 # v0.3.0
+    permissions:
+      contents: read # to read tags
     with:
       version: ${{ github.event.inputs.version }}
 
   check-gate:
     permissions:
-      checks: read   # required for getting the status of specific check names
+      checks: read # required for getting the status of specific check names
     uses: anchore/workflows/.github/workflows/check-gate.yaml@4f25313f96311410cad4173f74617654a3e46d48 # v0.3.0
     with:
       checks: '["Static analysis", "Unit tests"]'
@@ -37,7 +38,7 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6.0.2
         with:
-          fetch-depth: 0  # we need the full history to reason about changelogs and tags
+          fetch-depth: 0 # we need the full history to reason about changelogs and tags
           persist-credentials: true
 
       # setup checkout, go, go-make, binny, and cache go modules
