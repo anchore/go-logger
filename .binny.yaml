@@ -12,7 +12,7 @@ tools:
   # used at release to generate the changelog
   - name: chronicle
     version:
-      want: v0.8.3
+      want: v0.9.0
     method: github-release
     with:
       repo: anchore/chronicle
@@ -20,7 +20,7 @@ tools:
   # used for linting
   - name: golangci-lint
     version:
-      want: v2.11.4
+      want: v2.12.2
     method: github-release
     with:
       repo: golangci/golangci-lint
@@ -60,7 +60,7 @@ tools:
   # used for creating GitHub releases in CI
   - name: gh
     version:
-      want: v2.91.0
+      want: v2.92.0
     method: github-release
     with:
       repo: cli/cli
