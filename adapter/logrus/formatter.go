@@ -24,14 +24,17 @@ Note: this code was copied from https://github.com/x-cray/logrus-prefixed-format
 
 const defaultTimestampFormat = time.RFC3339
 
+// red is the style shared by the error, fatal, and panic levels.
+const red = "red"
+
 var (
 	baseTimestamp      = time.Now()
 	defaultColorScheme = &ColorScheme{
 		InfoLevelStyle:  "green",
 		WarnLevelStyle:  "yellow",
-		ErrorLevelStyle: "red",
-		FatalLevelStyle: "red",
-		PanicLevelStyle: "red",
+		ErrorLevelStyle: red,
+		FatalLevelStyle: red,
+		PanicLevelStyle: red,
 		DebugLevelStyle: "blue",
 		TraceLevelStyle: "magenta+h",
 		PrefixStyle:     "cyan",
