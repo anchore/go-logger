@@ -1,10 +1,35 @@
 package logrus
 
 import (
+	"bytes"
 	"testing"
 
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )
+
+type terminalBuffer struct {
+	bytes.Buffer
+}
+
+func (t *terminalBuffer) IsTerminal() bool { return true }
+
+func TestTextFormatter_ColorsFollowOutput(t *testing.T) {
+	l := logrus.New()
+	l.SetFormatter(DefaultTextFormatter())
+
+	// a plain buffer is not a terminal, so no colors
+	plain := &bytes.Buffer{}
+	l.SetOutput(plain)
+	l.Warn("first")
+	assert.NotContains(t, plain.String(), "\x1b[")
+
+	// swapping to a terminal-aware writer after the first entry should enable colors
+	term := &terminalBuffer{}
+	l.SetOutput(term)
+	l.Warn("second")
+	assert.Contains(t, term.String(), "\x1b[")
+}
 
 func Test_extractPrefix(t *testing.T) {
 
